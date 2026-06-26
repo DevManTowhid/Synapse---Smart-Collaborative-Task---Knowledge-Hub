@@ -4,10 +4,66 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id         String      @id @default(uuid())
+  email      String      @unique
+  password   String
+  name       String
+  createdAt  DateTime    @default(now())
+  
+  workspaces Workspace[]
+  tasks      Task[]      // Tasks assigned to this user
+}
+
+model Workspace {
+  id          String   @id @default(uuid())
+  name        String
+  ownerId     String
+  owner       User     @relation(fields: [ownerId], references: [id])
+  tasks       Task[]
+  createdAt   DateTime @default(now())
+}
+
+model Task {
+  id          String   @id @default(uuid())
+  title       String
+  description String?
+  status      String   @default("TODO") // e.g., TODO, IN_PROGRESS, DONE
+  priority    Int      @default(0)      // Weight for the Min-Heap Scheduler
+  dueDate     DateTime?
+  
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id])
+  
+  assigneeId  String?
+  assignee    User?     @relation(fields: [assigneeId], references: [id])
+
+  // DAG Relations: These fields define the graph edges
+  blocks      TaskDependency[] @relation("Blocks")
+  blockedBy   TaskDependency[] @relation("BlockedBy")
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Junction table for Directed Acyclic Graph (DAG) edges
+model TaskDependency {
+  id               String @id @default(uuid())
+  
+  blockingId       String
+  blockingTask     Task   @relation("Blocks", fields: [blockingId], references: [id], onDelete: Cascade)
+  
+  dependentId      String
+  dependentTask    Task   @relation("BlockedBy", fields: [dependentId], references: [id], onDelete: Cascade)
+
+  // A task cannot block the same dependent task twice
+  @@unique([blockingId, dependentId]) 
 }
