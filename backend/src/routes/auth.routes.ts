@@ -1,9 +1,17 @@
 import { Router } from 'express';
 import { LoginUser, registerUser } from '../controllers/auth.controller.js'; 
+import { createTask } from '../controllers/task.controller.js';
+import { createWorkspace } from '../controllers/workspace.controller.js';
+import { protect } from '../middleware/auth.middleware.js';
 
-const router = Router();
+const authRoutes = Router();
 
 // POST /api/auth/register
-router.post('/register', registerUser); // 
-router.post('/login', LoginUser )
-export default router;
+authRoutes.post('/register', registerUser); // 
+
+
+authRoutes.post('/login', LoginUser );
+
+
+
+export default authRoutes;
