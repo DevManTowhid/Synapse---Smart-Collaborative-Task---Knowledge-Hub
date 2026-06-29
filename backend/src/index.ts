@@ -4,6 +4,8 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
 import authRoutes from './routes/auth.routes';
+import workspaceRoutes from './routes/workspace.routes';
+import taskRoutes from './routes/auth.routes';
 
 // booting the engine
 
@@ -44,5 +46,6 @@ app.listen(PORT, () => {
 });
 
 
-// Mount the Auth routes
-app.use('/api/auth', authRoutes); // use routes
+app.use('/api/auth', authRoutes);
+app.use('/api/workspaces', workspaceRoutes);
+app.use('/api/tasks', taskRoutes);
