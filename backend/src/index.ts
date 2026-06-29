@@ -3,6 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { PrismaClient } from '@prisma/client';
+import authRoutes from './routes/auth.routes';
 
 // booting the engine
 
@@ -41,3 +42,7 @@ app.get('/api/health', async (req: Request, res: Response) => {
 app.listen(PORT, () => {
   console.log(`🚀 Synapse Backend running on http://localhost:${PORT}`);
 });
+
+
+// Mount the Auth routes
+app.use('/api/auth', authRoutes); // use routes
